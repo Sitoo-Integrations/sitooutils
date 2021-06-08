@@ -42,7 +42,7 @@ func Node(accountNo string) string {
 }
 
 //GetSitoo - Function to GET data from Sitoo
-func GetSitoo(endpoint string, account string, password string) (int, []byte) {
+func GetSitoo(endpoint string, account string, password string) []byte {
 	accountSplit := strings.Split(account, "-")
 	accountNo := accountSplit[0]
 
@@ -88,9 +88,9 @@ func GetSitoo(endpoint string, account string, password string) (int, []byte) {
 			"statuscode":  resp.StatusCode,
 			"response":    "",
 		}).Debug("OK")
-		return resp.StatusCode, response
+		return response
 	}
-	return resp.StatusCode, response
+	return response
 }
 
 //PostSitoo - Function to POST data to Sitoo
