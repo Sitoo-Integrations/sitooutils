@@ -1,5 +1,5 @@
-module github.com/ufo666/sitooutils
+module github.com/Sitoo-Integrations/sitooutils
 
-go 1.13
+go 1.14
 
-require github.com/sirupsen/logrus v1.4.2
+require github.com/sirupsen/logrus v1.8.1

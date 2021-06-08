@@ -18,11 +18,16 @@ func BasicAuth(user, pass string) string {
 	return base64.StdEncoding.EncodeToString([]byte(auth))
 }
 
+//Node - Function to set node
 func Node(accountNo string) string {
 	var node string
-	if string(accountNo[0]) == "9" {
+	if string(accountNo[0:2]) == "90" {
 		node = "-sandbox"
-	} else if string(accountNo[0:3]) == "130" {
+	} else if string(accountNo[0:2]) == "91" {
+		node = "140"
+	} else if string(accountNo[0:3]) == "119" {
+		node = "130"
+	} else if string(accountNo[0:2]) == "13" {
 		node = "130"
 	} else if string(accountNo[0:3]) == "100" {
 		node = ""
@@ -30,12 +35,14 @@ func Node(accountNo string) string {
 		node = "201"
 	} else if string(accountNo[0:3]) == "202" {
 		node = "202"
+	} else if string(accountNo[0:3]) == "203" {
+		node = "203"
 	}
 	return node
 }
 
 //GetSitoo - Function to GET data from Sitoo
-func GetSitoo(endpoint string, account string, password string) []byte {
+func GetSitoo(endpoint string, account string, password string) (int, []byte) {
 	accountSplit := strings.Split(account, "-")
 	accountNo := accountSplit[0]
 
@@ -58,19 +65,19 @@ func GetSitoo(endpoint string, account string, password string) []byte {
 			"endpoint":    endpoint,
 			"body":        nil,
 			"response":    err,
-		}).Fatal("ERROR")
+		}).Error("ERROR")
 	}
 	defer resp.Body.Close()
 
 	response, _ := ioutil.ReadAll(resp.Body)
-	if resp.StatusCode != 200 {
+	if resp.StatusCode == 500 || resp.StatusCode == 401 {
 		log.WithFields(log.Fields{
 			"requesttype": "GET/Response",
 			"account":     account,
 			"endpoint":    endpoint,
 			"statuscode":  resp.StatusCode,
 			"response":    string(response),
-		}).Fatal("ERROR")
+		}).Error("ERROR")
 
 		os.Exit(1)
 	} else {
@@ -79,11 +86,11 @@ func GetSitoo(endpoint string, account string, password string) []byte {
 			"account":     account,
 			"endpoint":    endpoint,
 			"statuscode":  resp.StatusCode,
-			"response":    string(response),
+			"response":    "",
 		}).Debug("OK")
-		return response
+		return resp.StatusCode, response
 	}
-	return response
+	return resp.StatusCode, response
 }
 
 //PostSitoo - Function to POST data to Sitoo
@@ -100,8 +107,8 @@ func PostSitoo(endpoint string, account string, password string, json []byte) []
 		"requesttype": "POST",
 		"account":     account,
 		"endpoint":    endpoint,
-		"body":        json,
-	}).Info("Request sent")
+		"body":        string(json),
+	}).Debug("Request sent")
 
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -110,7 +117,7 @@ func PostSitoo(endpoint string, account string, password string, json []byte) []
 			"endpoint":    endpoint,
 			"body":        json,
 			"response":    err,
-		}).Fatal("ERROR")
+		}).Error("ERROR")
 	}
 	defer resp.Body.Close()
 
@@ -122,7 +129,7 @@ func PostSitoo(endpoint string, account string, password string, json []byte) []
 			"endpoint":    endpoint,
 			"statuscode":  resp.StatusCode,
 			"response":    string(response),
-		}).Fatal("ERROR")
+		}).Error("ERROR")
 
 		os.Exit(1)
 	} else {
@@ -132,7 +139,7 @@ func PostSitoo(endpoint string, account string, password string, json []byte) []
 			"endpoint":    endpoint,
 			"statuscode":  resp.StatusCode,
 			"response":    string(response),
-		}).Info("OK")
+		}).Debug("OK")
 		return response
 	}
 	return response
@@ -152,8 +159,8 @@ func PutSitoo(endpoint string, account string, password string, json []byte) []b
 		"requesttype": "PUT",
 		"account":     account,
 		"endpoint":    endpoint,
-		"body":        json,
-	}).Info("Request sent")
+		"body":        string(json),
+	}).Debug("Request sent")
 
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -162,7 +169,7 @@ func PutSitoo(endpoint string, account string, password string, json []byte) []b
 			"endpoint":    endpoint,
 			"body":        json,
 			"response":    err,
-		}).Fatal("ERROR")
+		}).Error("ERROR")
 	}
 	defer resp.Body.Close()
 
@@ -174,7 +181,7 @@ func PutSitoo(endpoint string, account string, password string, json []byte) []b
 			"endpoint":    endpoint,
 			"statuscode":  resp.StatusCode,
 			"response":    string(response),
-		}).Fatal("ERROR")
+		}).Error("ERROR")
 	} else {
 		log.WithFields(log.Fields{
 			"requesttype": "PUT/Response",
@@ -182,7 +189,55 @@ func PutSitoo(endpoint string, account string, password string, json []byte) []b
 			"endpoint":    endpoint,
 			"statuscode":  resp.StatusCode,
 			"response":    string(response),
-		}).Info("OK")
+		}).Debug("OK")
+		return response
+	}
+	return response
+}
+
+//DeleteSitoo - Function to DELETE data to Sitoo
+func DeleteSitoo(endpoint string, account string, password string) []byte {
+	accountSplit := strings.Split(account, "-")
+	accountNo := accountSplit[0]
+
+	req, err := http.NewRequest("DELETE", "https://api"+Node(accountNo)+".mysitoo.com/v2/accounts/"+accountNo+endpoint, nil)
+	req.Header.Add("content-type", "application/json")
+	req.Header.Add("Authorization", "Basic "+BasicAuth(account, password))
+	resp, err := http.DefaultClient.Do(req)
+
+	log.WithFields(log.Fields{
+		"requesttype": "DELETE",
+		"account":     account,
+		"endpoint":    endpoint,
+	}).Debug("Request sent")
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"requesttype": "DELETE/Error",
+			"account":     account,
+			"endpoint":    endpoint,
+			"response":    err,
+		}).Error("ERROR")
+	}
+	defer resp.Body.Close()
+
+	response, _ := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode != 200 {
+		log.WithFields(log.Fields{
+			"requesttype": "DELETE/Response",
+			"account":     account,
+			"endpoint":    endpoint,
+			"statuscode":  resp.StatusCode,
+			"response":    string(response),
+		}).Error("ERROR")
+	} else {
+		log.WithFields(log.Fields{
+			"requesttype": "DELETE/Response",
+			"account":     account,
+			"endpoint":    endpoint,
+			"statuscode":  resp.StatusCode,
+			"response":    string(response),
+		}).Debug("OK")
 		return response
 	}
 	return response
