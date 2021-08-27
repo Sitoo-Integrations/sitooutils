@@ -42,11 +42,11 @@ func Node(accountNo string) string {
 }
 
 //GetSitoo - Function to GET data from Sitoo
-func GetSitoo(endpoint string, account string, password string) []byte {
+func GetSitoo(baseURL string, endpoint string, account string, password string) []byte {
 	accountSplit := strings.Split(account, "-")
 	accountNo := accountSplit[0]
 
-	req, err := http.NewRequest("GET", "https://api"+Node(accountNo)+".mysitoo.com/v2/accounts/"+accountNo+endpoint, nil)
+	req, err := http.NewRequest("GET", baseURL+accountNo+endpoint, nil)
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("Authorization", "Basic "+BasicAuth(account, password))
 	resp, err := http.DefaultClient.Do(req)
@@ -94,11 +94,11 @@ func GetSitoo(endpoint string, account string, password string) []byte {
 }
 
 //PostSitoo - Function to POST data to Sitoo
-func PostSitoo(endpoint string, account string, password string, json []byte) []byte {
+func PostSitoo(baseURL string, endpoint string, account string, password string, json []byte) []byte {
 	accountSplit := strings.Split(account, "-")
 	accountNo := accountSplit[0]
 
-	req, err := http.NewRequest("POST", "https://api"+Node(accountNo)+".mysitoo.com/v2/accounts/"+accountNo+endpoint, bytes.NewBuffer(json))
+	req, err := http.NewRequest("POST", baseURL+accountNo+endpoint, bytes.NewBuffer(json))
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("Authorization", "Basic "+BasicAuth(account, password))
 	resp, err := http.DefaultClient.Do(req)
@@ -146,11 +146,11 @@ func PostSitoo(endpoint string, account string, password string, json []byte) []
 }
 
 //PutSitoo - Function to PUT data to Sitoo
-func PutSitoo(endpoint string, account string, password string, json []byte) []byte {
+func PutSitoo(baseURL string, endpoint string, account string, password string, json []byte) []byte {
 	accountSplit := strings.Split(account, "-")
 	accountNo := accountSplit[0]
 
-	req, err := http.NewRequest("PUT", "https://api"+Node(accountNo)+".mysitoo.com/v2/accounts/"+accountNo+endpoint, bytes.NewBuffer(json))
+	req, err := http.NewRequest("PUT", baseURL+accountNo+endpoint, bytes.NewBuffer(json))
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("Authorization", "Basic "+BasicAuth(account, password))
 	resp, err := http.DefaultClient.Do(req)
@@ -196,11 +196,11 @@ func PutSitoo(endpoint string, account string, password string, json []byte) []b
 }
 
 //DeleteSitoo - Function to DELETE data to Sitoo
-func DeleteSitoo(endpoint string, account string, password string) []byte {
+func DeleteSitoo(baseURL string, endpoint string, account string, password string) []byte {
 	accountSplit := strings.Split(account, "-")
 	accountNo := accountSplit[0]
 
-	req, err := http.NewRequest("DELETE", "https://api"+Node(accountNo)+".mysitoo.com/v2/accounts/"+accountNo+endpoint, nil)
+	req, err := http.NewRequest("DELETE", baseURL+accountNo+endpoint, nil)
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("Authorization", "Basic "+BasicAuth(account, password))
 	resp, err := http.DefaultClient.Do(req)
