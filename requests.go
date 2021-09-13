@@ -80,7 +80,6 @@ func GetSitoo(baseURL string, endpoint string, account string, password string) 
 			"statuscode":  resp.StatusCode,
 			"response":    string(response),
 		}).Error("ERROR")
-
 		os.Exit(1)
 	} else if resp.StatusCode == 429 {
 		xRateLimitReset := resp.Header.Get("X-Rate-Limit-Reset")
@@ -130,6 +129,12 @@ func PostSitoo(baseURL string, endpoint string, account string, password string,
 
 	response, _ := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode != 200 {
+		if resp.StatusCode == 429 {
+			xRateLimitReset := resp.Header.Get("X-Rate-Limit-Reset")
+			sleepTime, _ := strconv.Atoi(xRateLimitReset)
+			time.Sleep(time.Duration(sleepTime) * time.Second)
+			PostSitoo(baseURL, endpoint, account, password, json)
+		}
 		log.WithFields(log.Fields{
 			"requesttype": "POST/Response",
 			"account":     account,
@@ -137,12 +142,6 @@ func PostSitoo(baseURL string, endpoint string, account string, password string,
 			"statuscode":  resp.StatusCode,
 			"response":    string(response),
 		}).Error("ERROR")
-		if resp.StatusCode == 429 {
-			xRateLimitReset := resp.Header.Get("X-Rate-Limit-Reset")
-			sleepTime, _ := strconv.Atoi(xRateLimitReset)
-			time.Sleep(time.Duration(sleepTime) * time.Second)
-			PostSitoo(baseURL, endpoint, account, password, json)
-		}
 		os.Exit(1)
 	} else {
 		log.WithFields(log.Fields{
@@ -187,6 +186,12 @@ func PutSitoo(baseURL string, endpoint string, account string, password string, 
 
 	response, _ := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode != 200 {
+		if resp.StatusCode == 429 {
+			xRateLimitReset := resp.Header.Get("X-Rate-Limit-Reset")
+			sleepTime, _ := strconv.Atoi(xRateLimitReset)
+			time.Sleep(time.Duration(sleepTime) * time.Second)
+			PutSitoo(baseURL,endpoint,account,password,json)
+		}
 		log.WithFields(log.Fields{
 			"requesttype": "PUT/Response",
 			"account":     account,
@@ -194,12 +199,6 @@ func PutSitoo(baseURL string, endpoint string, account string, password string, 
 			"statuscode":  resp.StatusCode,
 			"response":    string(response),
 		}).Error("ERROR")
-		if resp.StatusCode == 429 {
-			xRateLimitReset := resp.Header.Get("X-Rate-Limit-Reset")
-			sleepTime, _ := strconv.Atoi(xRateLimitReset)
-			time.Sleep(time.Duration(sleepTime) * time.Second)
-			PutSitoo(baseURL,endpoint,account,password,json)
-		}
 	} else {
 		log.WithFields(log.Fields{
 			"requesttype": "PUT/Response",
@@ -241,6 +240,12 @@ func DeleteSitoo(baseURL string, endpoint string, account string, password strin
 
 	response, _ := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode != 200 {
+		if resp.StatusCode == 429 {
+			xRateLimitReset := resp.Header.Get("X-Rate-Limit-Reset")
+			sleepTime, _ := strconv.Atoi(xRateLimitReset)
+			time.Sleep(time.Duration(sleepTime) * time.Second)
+			DeleteSitoo(baseURL,endpoint,account,password)
+		}
 		log.WithFields(log.Fields{
 			"requesttype": "DELETE/Response",
 			"account":     account,
@@ -248,13 +253,6 @@ func DeleteSitoo(baseURL string, endpoint string, account string, password strin
 			"statuscode":  resp.StatusCode,
 			"response":    string(response),
 		}).Error("ERROR")
-
-		if resp.StatusCode == 429 {
-			xRateLimitReset := resp.Header.Get("X-Rate-Limit-Reset")
-			sleepTime, _ := strconv.Atoi(xRateLimitReset)
-			time.Sleep(time.Duration(sleepTime) * time.Second)
-			DeleteSitoo(baseURL,endpoint,account,password)
-		}
 	} else {
 		log.WithFields(log.Fields{
 			"requesttype": "DELETE/Response",
