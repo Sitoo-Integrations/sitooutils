@@ -134,15 +134,17 @@ func PostSitoo(baseURL string, endpoint string, account string, password string,
 			sleepTime, _ := strconv.Atoi(xRateLimitReset)
 			time.Sleep(time.Duration(sleepTime) * time.Second)
 			PostSitoo(baseURL, endpoint, account, password, json)
+		} else {
+			log.WithFields(log.Fields{
+				"requesttype": "POST/Response",
+				"account":     account,
+				"endpoint":    endpoint,
+				"statuscode":  resp.StatusCode,
+				"response":    string(response),
+			}).Error("ERROR")
+			os.Exit(1)
 		}
-		log.WithFields(log.Fields{
-			"requesttype": "POST/Response",
-			"account":     account,
-			"endpoint":    endpoint,
-			"statuscode":  resp.StatusCode,
-			"response":    string(response),
-		}).Error("ERROR")
-		os.Exit(1)
+
 	} else {
 		log.WithFields(log.Fields{
 			"requesttype": "POST/Response",
@@ -191,14 +193,15 @@ func PutSitoo(baseURL string, endpoint string, account string, password string, 
 			sleepTime, _ := strconv.Atoi(xRateLimitReset)
 			time.Sleep(time.Duration(sleepTime) * time.Second)
 			PutSitoo(baseURL,endpoint,account,password,json)
+		} else {
+			log.WithFields(log.Fields{
+				"requesttype": "PUT/Response",
+				"account":     account,
+				"endpoint":    endpoint,
+				"statuscode":  resp.StatusCode,
+				"response":    string(response),
+			}).Error("ERROR")
 		}
-		log.WithFields(log.Fields{
-			"requesttype": "PUT/Response",
-			"account":     account,
-			"endpoint":    endpoint,
-			"statuscode":  resp.StatusCode,
-			"response":    string(response),
-		}).Error("ERROR")
 	} else {
 		log.WithFields(log.Fields{
 			"requesttype": "PUT/Response",
@@ -245,14 +248,15 @@ func DeleteSitoo(baseURL string, endpoint string, account string, password strin
 			sleepTime, _ := strconv.Atoi(xRateLimitReset)
 			time.Sleep(time.Duration(sleepTime) * time.Second)
 			DeleteSitoo(baseURL,endpoint,account,password)
+		} else {
+			log.WithFields(log.Fields{
+				"requesttype": "DELETE/Response",
+				"account":     account,
+				"endpoint":    endpoint,
+				"statuscode":  resp.StatusCode,
+				"response":    string(response),
+			}).Error("ERROR")
 		}
-		log.WithFields(log.Fields{
-			"requesttype": "DELETE/Response",
-			"account":     account,
-			"endpoint":    endpoint,
-			"statuscode":  resp.StatusCode,
-			"response":    string(response),
-		}).Error("ERROR")
 	} else {
 		log.WithFields(log.Fields{
 			"requesttype": "DELETE/Response",
